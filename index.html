@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#F6F4EF">
+<meta name="description" content="Check-up do Nicholas — uma análise inicial para identificar oportunidades de eficiência, melhoria operacional e crescimento do Instituto LIMAE.">
+<title>Check-up do Nicholas — Instituto LIMAE</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23104F49'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='30' fill='%23F6F4EF' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F4EF;
+    --surface:#FFFFFF;
+    --ink:#1A1813;
+    --muted:#75705F;
+    --faint:#A39D8C;
+    --line:#E4DFD3;
+    --line-strong:#CFC9B9;
+    --accent:#104F49;
+    --accent-hover:#0B3B36;
+    --accent-soft:rgba(16,79,73,.07);
+    --radius:14px;
+    --serif:"Fraunces",Georgia,"Times New Roman",serif;
+    --sans:"Inter",-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--sans);
+    background:var(--bg);
+    color:var(--ink);
+    min-height:100dvh;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  ::selection{background:rgba(16,79,73,.18)}
+
+  /* ---------- chrome ---------- */
+  .progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:50;background:transparent}
+  .progress .bar{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.25,.8,.3,1)}
+  .topbar{
+    position:fixed;top:0;left:0;right:0;z-index:40;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:20px 28px;pointer-events:none;
+  }
+  .brand{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;letter-spacing:.22em;text-transform:uppercase}
+  .brand .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none}
+  .brand em{font-style:normal;color:var(--muted);font-weight:500;letter-spacing:.14em}
+  .topbar .tag{font-size:11.5px;color:var(--faint);letter-spacing:.06em}
+
+  .back{
+    position:fixed;left:22px;bottom:22px;z-index:40;
+    width:44px;height:44px;border-radius:50%;
+    border:1px solid var(--line);background:var(--surface);
+    display:grid;place-items:center;cursor:pointer;
+    color:var(--muted);transition:all .18s ease;
+  }
+  .back:hover{border-color:var(--ink);color:var(--ink);transform:translateX(-2px)}
+  .back[hidden]{display:none}
+  .back svg{width:18px;height:18px}
+
+  .kbd-hints{
+    position:fixed;right:26px;bottom:30px;z-index:40;
+    display:flex;gap:14px;font-size:11.5px;color:var(--faint);pointer-events:none;
+  }
+  .kbd-hints span{display:flex;align-items:center;gap:6px}
+  kbd{
+    font-family:var(--sans);font-size:10.5px;font-weight:600;color:var(--muted);
+    border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;
+    padding:2px 7px;background:var(--surface);
+  }
+  @media (hover:none),(max-width:640px){.kbd-hints{display:none}}
+
+  /* ---------- stage ---------- */
+  .stage-wrap{
+    max-width:720px;margin:0 auto;
+    min-height:100dvh;display:flex;flex-direction:column;justify-content:center;
+    padding:104px 30px 110px;
+  }
+  @media (max-width:560px){.stage-wrap{padding:88px 22px 104px}}
+
+  .screen{animation-duration:.42s;animation-timing-function:cubic-bezier(.22,.85,.3,1);animation-fill-mode:both}
+  .in-right{animation-name:inRight}
+  .in-left{animation-name:inLeft}
+  .in-place{animation:none}
+  @keyframes inRight{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+  @keyframes inLeft{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    display:flex;justify-content:space-between;align-items:baseline;gap:16px;
+    font-size:11.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--faint);margin-bottom:30px;
+  }
+  .eyebrow .num{letter-spacing:.08em;white-space:nowrap}
+
+  .q-title{
+    font-family:var(--serif);font-weight:560;
+    font-size:clamp(27px,4.4vw,41px);
+    line-height:1.16;letter-spacing:-.01em;
+    margin-bottom:14px;text-wrap:balance;
+  }
+  .q-hint{color:var(--muted);font-size:15.5px;line-height:1.55;margin-bottom:30px}
+  .q-hint .opt-flag{color:var(--accent);font-weight:500}
+
+  /* ---------- options ---------- */
+  .opts{display:flex;flex-direction:column;gap:9px}
+  .opt{
+    display:flex;align-items:center;gap:15px;text-align:left;
+    padding:15px 18px;border-radius:var(--radius);
+    border:1px solid var(--line);background:transparent;
+    font-family:var(--sans);font-size:16px;line-height:1.4;color:var(--ink);
+    cursor:pointer;transition:border-color .16s ease,background .16s ease,transform .16s ease;
+    width:100%;
+  }
+  .opt:hover{border-color:var(--line-strong);background:var(--surface)}
+  .opt:active{transform:scale(.995)}
+  .opt .key{
+    width:27px;height:27px;border-radius:9px;flex:none;
+    border:1px solid var(--line-strong);
+    display:grid;place-items:center;
+    font-size:11.5px;font-weight:600;color:var(--muted);
+    transition:all .16s ease;
+  }
+  .opt .key svg{width:13px;height:13px;opacity:0;transition:opacity .14s ease;color:#fff}
+  .opt.selected{border-color:var(--accent);background:var(--accent-soft)}
+  .opt.selected .key{background:var(--accent);border-color:var(--accent);color:#fff}
+  .opt.selected .key span{display:none}
+  .opt.selected .key svg{opacity:1}
+
+  .outro-box{margin-left:42px;margin-top:4px}
+  @media (max-width:560px){.outro-box{margin-left:0}}
+  .outro-box input,.outro-box textarea{
+    width:100%;border:none;border-bottom:1.5px solid var(--line-strong);
+    background:transparent;padding:9px 2px;font-family:var(--sans);
+    font-size:15.5px;color:var(--ink);outline:none;resize:none;
+    transition:border-color .18s ease;
+  }
+  .outro-box input:focus,.outro-box textarea:focus{border-color:var(--accent)}
+
+  /* ---------- text input ---------- */
+  .big-input{
+    width:100%;border:none;background:transparent;
+    font-family:var(--sans);font-size:19px;line-height:1.6;color:var(--ink);
+    outline:none;resize:none;min-height:110px;max-height:340px;
+    border-bottom:1.5px solid var(--line-strong);
+    padding:0 2px 12px;transition:border-color .2s ease;
+  }
+  .big-input:focus{border-color:var(--accent)}
+  .big-input::placeholder,.outro-box input::placeholder,.outro-box textarea::placeholder{color:var(--faint)}
+
+  .sub-field{margin-top:26px;padding-top:24px;border-top:1px dashed var(--line)}
+  .sub-field label{display:block;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px}
+  .sub-field label .opt-flag{color:var(--muted);font-weight:500}
+
+  /* ---------- chips ---------- */
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:26px}
+  .chip{
+    padding:10px 16px;border-radius:999px;border:1px solid var(--line);
+    background:transparent;font-family:var(--sans);font-size:14.5px;color:var(--ink);
+    cursor:pointer;transition:all .16s ease;
+  }
+  .chip:hover{border-color:var(--line-strong);background:var(--surface)}
+  .chip.selected{border-color:var(--accent);background:var(--accent);color:#fff}
+
+  /* ---------- actions ---------- */
+  .actions{display:flex;align-items:center;gap:14px;margin-top:34px;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:14px 26px;border-radius:999px;
+    font-family:var(--sans);font-size:15px;font-weight:600;
+    border:1px solid transparent;cursor:pointer;
+    transition:all .18s ease;
+  }
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:var(--accent-hover)}
+  .btn-primary:active{transform:scale(.98)}
+  .btn-ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
+  .btn-ghost:hover{border-color:var(--ink)}
+  .btn[disabled]{opacity:.35;cursor:not-allowed;pointer-events:none}
+  .btn svg{width:15px;height:15px}
+
+  /* ---------- welcome ---------- */
+  .welcome .brand-block{margin-bottom:46px}
+  .welcome h1{
+    font-family:var(--serif);font-weight:560;
+    font-size:clamp(34px,5.6vw,54px);
+    line-height:1.08;letter-spacing:-.015em;margin-bottom:22px;text-wrap:balance;
+  }
+  .welcome .lead{font-size:clamp(17px,2.4vw,20px);line-height:1.55;color:var(--ink);margin-bottom:18px;max-width:56ch}
+  .welcome .support{font-size:15.5px;line-height:1.65;color:var(--muted);margin-bottom:34px;max-width:60ch}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:40px}
+  .meta-pill{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12.5px;font-weight:500;color:var(--muted);
+    border:1px solid var(--line);border-radius:999px;padding:8px 15px;background:var(--surface);
+  }
+  .meta-pill svg{width:13px;height:13px;color:var(--accent)}
+  .welcome .credit{margin-top:52px;font-size:12px;color:var(--faint);letter-spacing:.04em}
+
+  /* ---------- final ---------- */
+  .recap{margin:34px 0 10px;display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}
+  .recap-row{
+    display:flex;gap:18px;padding:16px 6px;border-bottom:1px solid var(--line);
+    cursor:pointer;transition:background .15s ease;border-radius:8px;
+  }
+  .recap-row:hover{background:var(--surface)}
+  .recap-row .rn{
+    font-family:var(--serif);font-size:15px;color:var(--faint);flex:none;width:26px;padding-top:2px;
+  }
+  .recap-row .rbody{flex:1;min-width:0}
+  .recap-row .rl{font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+  .recap-row .rv{font-size:15px;line-height:1.55;color:var(--ink);white-space:pre-line}
+  .recap-row .rv .tagchip{
+    display:inline-block;margin:2px 6px 2px 0;padding:4px 11px;
+    border:1px solid var(--line-strong);border-radius:999px;font-size:13px;
+  }
+  .recap-note{font-size:13px;color:var(--faint);margin:14px 0 8px}
+  .final-privacy{font-size:12.5px;color:var(--muted);margin-top:22px;max-width:62ch;line-height:1.6}
+  .reset-link{
+    margin-top:26px;background:none;border:none;cursor:pointer;
+    font-family:var(--sans);font-size:12.5px;color:var(--faint);text-decoration:underline;text-underline-offset:3px;
+  }
+  .reset-link:hover{color:var(--ink)}
+
+  .toast{
+    position:fixed;left:50%;bottom:30px;transform:translate(-50%,20px);
+    background:var(--ink);color:var(--bg);font-size:13.5px;font-weight:500;
+    padding:11px 20px;border-radius:999px;opacity:0;pointer-events:none;
+    transition:all .3s cubic-bezier(.22,.85,.3,1);z-index:60;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" aria-hidden="true"><div class="bar" id="progressBar"></div></div>
+
+<header class="topbar">
+  <div class="brand"><span class="dot"></span>LIMAE <em>· Instituto</em></div>
+  <div class="tag">Check-up do Nicholas</div>
+</header>
+
+<button class="back" id="backBtn" aria-label="Voltar à pergunta anterior" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+</button>
+
+<div class="kbd-hints" id="kbdHints" hidden>
+  <span><kbd>↵</kbd> continuar</span>
+  <span><kbd>⌫</kbd> voltar</span>
+</div>
+
+<main class="stage-wrap" id="stage" tabindex="-1"></main>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+'use strict';
+
+/* ============================================================
+   CONFIGURAÇÃO — edite aqui antes de publicar
+   ============================================================ */
+const CONFIG = {
+  org: 'Instituto LIMAE',
+  respondent: 'Nicholas Lima',
+  role: 'CEO',
+  consultant: 'VJ ONE',
+  // Número do consultor no formato internacional, só dígitos: 55 + DDD + número
+  whatsapp: '553123420754',
+};
+
+/* ============================================================
+   PERGUNTAS
+   ============================================================ */
+const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+
+const QUESTIONS = [
+  {
+    id:'q1', stage:'Etapa 1 — Visão estratégica', short:'Prioridades atuais', type:'multi',
+    title:'Qual é a principal prioridade do LIMAE neste momento?',
+    hint:'Selecione todas as que se aplicam.',
+    options:[
+      'Aumentar o faturamento.',
+      'Atrair mais pacientes.',
+      'Melhorar a conversão de interessados em pacientes.',
+      'Melhorar a experiência e o acompanhamento dos pacientes.',
+      'Organizar e otimizar a operação.',
+      'Reduzir custos operacionais.',
+      'Expandir a estrutura e a capacidade de atendimento.',
+      {label:'Outro.', outro:true, placeholder:'Descreva a prioridade…'}
+    ]
+  },
+  {
+    id:'q2', stage:'Etapa 1 — Visão estratégica', short:'Gargalo principal', type:'single',
+    title:'Hoje, qual área mais limita o crescimento do instituto?',
+    hint:'Selecione uma.',
+    options:[
+      'Marketing e captação de pacientes.',
+      'Comercial e conversão de leads.',
+      'Atendimento e relacionamento.',
+      'Gestão e processos internos.',
+      'Equipe e produtividade.',
+      'Financeiro e controle de custos.',
+      'Tecnologia e integração de sistemas.',
+      'Não tenho clareza ainda.',
+      {label:'Outro.', outro:true, placeholder:'Qual área?'}
+    ]
+  },
+  {
+    id:'q3', stage:'Etapa 2 — Operação atual', short:'Processo comercial atual', type:'text',
+    title:'Como funciona hoje o processo desde o primeiro contato de um potencial paciente até a conversão em consulta ou tratamento?',
+    hint:'Descreva como acontece na prática, do jeito que for — cada detalhe ajuda.',
+    placeholder:'Ex.: o interessado chama no WhatsApp, alguém responde quando pode, o agendamento fica no caderno…'
+  },
+  {
+    id:'q4', stage:'Etapa 2 — Operação atual', short:'Tempo da equipe', type:'multi', note:true,
+    title:'Quais atividades ou processos mais consomem tempo da equipe atualmente?',
+    hint:'Selecione todas as que se aplicam.',
+    options:[
+      'Responder mensagens e dúvidas.',
+      'Fazer contatos e acompanhamentos.',
+      'Agendamentos e confirmações.',
+      'Atividades administrativas.',
+      'Gestão de informações e prontuários.',
+      'Controle financeiro.',
+      'Organização de processos internos.',
+      'Outras atividades.'
+    ],
+    noteLabel:'Quer detalhar alguma delas?',
+    notePlaceholder:'Ex.: quem faz o quê, quanto tempo leva, onde trava…'
+  },
+  {
+    id:'q5', stage:'Etapa 2 — Operação atual', short:'Tarefas manuais', type:'single',
+    title:'Existem tarefas que ainda são feitas manualmente e poderiam ser automatizadas ou simplificadas?',
+    hint:'Selecione uma.',
+    options:['Sim, várias.','Algumas.','Poucas.','Não sei identificar.']
+  },
+  {
+    id:'q5b', stage:'Etapa 2 — Operação atual', short:'Tarefas a simplificar', type:'text',
+    title:'Quais são essas tarefas?',
+    hint:'Liste as que mais pesam no dia a dia da equipe.',
+    placeholder:'Ex.: confirmação de consultas por telefone, cobrança manual, preenchimento de planilhas…',
+    showIf:a => a.q5 === 'Sim, várias.' || a.q5 === 'Algumas.'
+  },
+  {
+    id:'q6', stage:'Etapa 3 — Gestão e tecnologia', short:'Visão de resultados', type:'single',
+    title:'Como vocês acompanham os resultados do instituto atualmente?',
+    hint:'Selecione a que melhor descreve a realidade de hoje.',
+    options:[
+      'Temos indicadores e relatórios bem definidos.',
+      'Utilizamos planilhas e controles manuais.',
+      'Utilizamos sistemas de gestão.',
+      'Temos informações, mas elas ficam espalhadas em diferentes ferramentas.',
+      'Não temos uma visão clara dos indicadores.'
+    ]
+  },
+  {
+    id:'q7', stage:'Etapa 3 — Gestão e tecnologia', short:'Ferramentas em uso', type:'chips',
+    title:'Quais ferramentas e sistemas vocês utilizam hoje na operação?',
+    hint:'Selecione as que já usam e escreva as demais.',
+    chips:[
+      'WhatsApp / WhatsApp Business',
+      'Instagram',
+      'Google Planilhas / Excel',
+      'CRM',
+      'Sistema de gestão ou prontuário',
+      'Agendamento on-line',
+      'Ferramentas financeiras',
+      'E-mail marketing'
+    ],
+    textLabel:'Outras ferramentas e detalhes de uso',
+    textPlaceholder:'Ex.: nome do sistema de gestão, como cada ferramenta é usada…'
+  },
+  {
+    id:'q8', stage:'Etapa 4 — Problemas e impactos', short:'Três problemas', type:'text',
+    title:'Se você pudesse eliminar três problemas da operação hoje, quais seriam?',
+    hint:'Um por linha, na ordem do que mais incomoda.',
+    placeholder:'1.\n2.\n3.'
+  },
+  {
+    id:'q9', stage:'Etapa 4 — Problemas e impactos', short:'Impacto dos problemas', type:'multi',
+    title:'Na sua percepção, qual é o impacto desses problemas?',
+    hint:'Selecione todas as que fizerem sentido.',
+    options:[
+      'Perda de oportunidades e faturamento.',
+      'Excesso de trabalho e desperdício de tempo.',
+      'Aumento dos custos operacionais.',
+      'Insatisfação ou perda de pacientes.',
+      'Falta de clareza para tomar decisões.',
+      'Equipe sobrecarregada.',
+      {label:'Outro.', outro:true, placeholder:'Qual outro impacto?'}
+    ]
+  },
+  {
+    id:'q9b', stage:'Etapa 4 — Problemas e impactos', short:'Tamanho do impacto', type:'text', optional:true,
+    title:'Consegue estimar o tamanho desse impacto?',
+    hint:'Opcional. Aproximações já ajudam muito — horas, quantidades ou valores por mês.',
+    placeholder:'Ex.: perdemos uns X pacientes por mês / a equipe gasta ~Y horas por semana…',
+    showIf:a => Array.isArray(a.q9) && a.q9.length > 0
+  },
+  {
+    id:'q10', stage:'Etapa 5 — Comercial e conversão', short:'Onde os interessados esfriam', type:'single',
+    title:'Hoje, em qual ponto os interessados costumam esfriar antes de virar pacientes?',
+    hint:'Selecione uma.',
+    options:[
+      'No primeiro contato, quando demoram a ser respondidos.',
+      'No acompanhamento depois do primeiro contato.',
+      'Na proposta de tratamento ou no preço.',
+      'No agendamento e na confirmação.',
+      'Não sabemos com precisão.',
+      'Isso não acontece — a conversão está boa.',
+      {label:'Outro.', outro:true, placeholder:'Em qual ponto?'}
+    ]
+  },
+  {
+    id:'q11', stage:'Etapa 5 — Comercial e conversão', short:'Tempo de resposta', type:'single',
+    title:'Qual é o tempo médio de resposta ao primeiro contato de um interessado?',
+    hint:'Selecione uma.',
+    options:[
+      'Menos de 5 minutos.',
+      'De 5 a 30 minutos.',
+      'De 1 a 3 horas.',
+      'Só no dia seguinte.',
+      'Varia muito, sem padrão.',
+      'Não sei informar.'
+    ]
+  },
+  {
+    id:'q12', stage:'Etapa 6 — Futuro e oportunidades', short:'Oportunidades de tecnologia', type:'multi',
+    title:'Onde você acredita que tecnologia e automação poderiam ajudar mais o LIMAE?',
+    hint:'Selecione todas as que despertarem interesse.',
+    options:[
+      'Resposta rápida e atendimento no WhatsApp, a qualquer hora.',
+      'Agendamento e confirmações automáticas.',
+      'Acompanhamento e follow-up de interessados.',
+      'Relatórios e indicadores em um só lugar.',
+      'Integração entre os sistemas existentes.',
+      'Organização de prontuários e informações dos pacientes.',
+      'Controle financeiro e cobranças.',
+      'Ainda não sei — quero entender as possibilidades.',
+      {label:'Outro.', outro:true, placeholder:'Onde mais?'}
+    ]
+  },
+  {
+    id:'q13', stage:'Etapa 6 — Futuro e oportunidades', short:'Planos de crescimento', type:'multi',
+    title:'Quais planos o LIMAE tem para os próximos 12 meses?',
+    hint:'Selecione todas as que se aplicam.',
+    options:[
+      'Aumentar a captação de pacientes.',
+      'Ampliar a equipe.',
+      'Abrir nova unidade.',
+      'Novos serviços ou tratamentos.',
+      'Organizar a operação e os processos.',
+      'Aumentar o ticket médio.',
+      'Ainda estamos definindo.',
+      {label:'Outro.', outro:true, placeholder:'Qual plano?'}
+    ]
+  },
+  {
+    id:'q14', stage:'Etapa 6 — Futuro e oportunidades', short:'Resultado esperado (6 meses)', type:'text',
+    title:'Se as melhorias que você apontou acontecerem nos próximos 6 meses, qual resultado você esperaria ver no LIMAE?',
+    hint:'Imagine o instituto funcionando exatamente como você quer. O que muda no dia a dia?',
+    placeholder:'Ex.: mensagens respondidas em minutos, agenda cheia sem esforço da equipe, números claros toda semana…'
+  },
+  {
+    id:'q15', stage:'Etapa 6 — Futuro e oportunidades', short:'Algo mais?', type:'text', optional:true,
+    title:'Há algo mais que você gostaria de compartilhar sobre o momento do LIMAE?',
+    hint:'Opcional. Espaço livre — opiniões, preocupações, ideias.',
+    placeholder:'Escreva aqui…'
+  }
+];
+
+/* ============================================================
+   ESTADO
+   ============================================================ */
+const STORAGE_KEY = 'limae_diagnostico_v1';
+let answers = {};
+let current = 0;
+let flow = [];
+
+const stageEl = document.getElementById('stage');
+const backBtn = document.getElementById('backBtn');
+const progressBar = document.getElementById('progressBar');
+const kbdHints = document.getElementById('kbdHints');
+const toastEl = document.getElementById('toast');
+
+const isQuestion = s => !!(s && s.id && !String(s.id).startsWith('__'));
+const isVisible = q => !q.showIf || q.showIf(answers);
+
+function computeFlow(){
+  flow = [{id:'__welcome'}, ...QUESTIONS.filter(isVisible), {id:'__final'}];
+}
+
+function save(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      answers, index: current, ts: Date.now()
+    }));
+  }catch(e){ /* armazenamento indisponível — segue sem salvar */ }
+}
+
+function restore(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    const data = JSON.parse(raw);
+    if(data && data.answers && Object.keys(data.answers).length){
+      return data;
+    }
+  }catch(e){ /* ignora */ }
+  return null;
+}
+
+/* ---------- respostas ---------- */
+const OUTRO_PREFIX = 'Outro — ';
+
+function emptyOutro(x){
+  return x === OUTRO_PREFIX || (x.startsWith(OUTRO_PREFIX) && !x.slice(OUTRO_PREFIX.length).trim());
+}
+
+function optionLabel(o){ return typeof o === 'string' ? o : o.label; }
+function isOutro(o){ return typeof o === 'object' && o.outro; }
+
+function isAnswered(q){
+  const v = answers[q.id];
+  if(v === undefined || v === null || v === '') return false;
+  if(q.type === 'multi'){
+    const arr = q.note ? (v.selected || []) : (Array.isArray(v) ? v : []);
+    const valid = arr.filter(x => !(typeof x === 'string' && emptyOutro(x)));
+    return valid.length > 0;
+  }
+  if(q.type === 'chips') return (v.chips && v.chips.length > 0) || !!(v.text && v.text.trim());
+  if(q.type === 'text') return String(v).trim().length > 0;
+  if(q.type === 'single'){
+    if(typeof v !== 'string') return false;
+    if(v.startsWith(OUTRO_PREFIX)) return v.slice(OUTRO_PREFIX.length).trim().length > 0;
+    return true;
+  }
+  return false;
+}
+
+function getAnswerValue(q){
+  const v = answers[q.id];
+  if(!isAnswered(q)) return null;
+  if(q.type === 'multi' && q.note){
+    const parts = [...(v.selected || [])];
+    if(v.note && v.note.trim()) parts.push(v.note.trim());
+    return parts;
+  }
+  if(q.type === 'chips'){
+    const parts = [...(v.chips || [])];
+    if(v.text && v.text.trim()) parts.push(v.text.trim());
+    return parts;
+  }
+  return v;
+}
+
+/* ---------- navegação ---------- */
+function next(){
+  if(current < flow.length - 1){
+    current++;
+    render(1);
+  }
+}
+function back(){
+  if(current > 0){
+    current--;
+    render(-1);
+  }
+}
+function goToIndex(i){
+  current = Math.max(0, Math.min(i, flow.length - 1));
+  render(1);
+}
+
+function updateChrome(){
+  const pct = (current / (flow.length - 1)) * 100;
+  progressBar.style.width = pct + '%';
+  backBtn.hidden = current === 0;
+  const screen = flow[current];
+  const isText = isQuestion(screen) && (screen.type === 'text');
+  kbdHints.hidden = !isQuestion(screen);
+  if(isQuestion(screen)){
+    kbdHints.innerHTML = isText
+      ? '<span><kbd>↵</kbd> enviar</span><span><kbd>⇧↵</kbd> nova linha</span>'
+      : '<span><kbd>↵</kbd> continuar</span><span><kbd>⌫</kbd> voltar</span>';
+  }
+}
+
+function render(dir, animate){
+  computeFlow();
+  if(current > flow.length - 1) current = flow.length - 1;
+  const screen = flow[current];
+  stageEl.innerHTML = '';
+  const node = isQuestion(screen) ? buildQuestion(screen, current) :
+               screen.id === '__final' ? buildFinal() : buildWelcome();
+  const cls = animate === false ? 'in-place' : (dir < 0 ? 'in-left' : 'in-right');
+  node.classList.add('screen', cls);
+  stageEl.appendChild(node);
+  updateChrome();
+  save();
+  window.scrollTo({top:0, behavior:'auto'});
+}
+
+/* ============================================================
+   TELAS
+   ============================================================ */
+function eyebrowRow(left, right){
+  return '<div class="eyebrow"><span>' + left + '</span>' +
+         (right ? '<span class="num">' + right + '</span>' : '') + '</div>';
+}
+
+function questionCounter(){
+  const visibleQs = QUESTIONS.filter(isVisible);
+  const screen = flow[current];
+  if(!isQuestion(screen)) return null;
+  const pos = visibleQs.indexOf(screen) + 1;
+  return 'Pergunta ' + String(pos).padStart(2,'0') + ' de ' + String(visibleQs.length).padStart(2,'0');
+}
+
+function buildWelcome(){
+  const saved = restore();
+  const hasSaved = saved && saved.index > 0;
+  const el = document.createElement('section');
+  el.className = 'welcome';
+  el.innerHTML =
+    '<div class="brand-block">' +
+      '<span style="font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)">Instituto LIMAE</span>' +
+    '</div>' +
+    '<h1>Check-up do Nicholas</h1>' +
+    '<p class="lead">Uma análise inicial para identificar oportunidades de eficiência, melhoria operacional e crescimento.</p>' +
+    '<p class="support">Este check-up foi desenvolvido para compreender melhor o momento atual do LIMAE, identificar possíveis gargalos e encontrar oportunidades que possam gerar resultados concretos para o negócio. Não há respostas certas ou erradas — queremos a realidade, como ela é.</p>' +
+    '<div class="meta-row">' +
+      '<span class="meta-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> 5 a 7 minutos</span>' +
+      '<span class="meta-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Respostas confidenciais</span>' +
+      '<span class="meta-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Você pode voltar e editar</span>' +
+    '</div>' +
+    '<div class="actions">' +
+      (hasSaved
+        ? '<button class="btn btn-primary" id="startBtn">Continuar de onde parei</button>' +
+          '<button class="btn btn-ghost" id="restartBtn">Recomeçar do início</button>'
+        : '<button class="btn btn-primary" id="startBtn">Começar check-up</button>') +
+    '</div>' +
+    '<p class="credit">Check-up conduzido pela ' + CONFIG.consultant + ' — consultoria estratégica.</p>';
+
+  el.querySelector('#startBtn').addEventListener('click', () => {
+    if(hasSaved){
+      goToIndex(Math.min(saved.index, flow.length - 1));
+    }else{
+      next();
+    }
+  });
+  const restart = el.querySelector('#restartBtn');
+  if(restart) restart.addEventListener('click', () => {
+    answers = {}; current = 1; save(); goToIndex(1);
+  });
+  return el;
+}
+
+/* ---------- tela de pergunta ---------- */
+function buildQuestion(q, flowIndex){
+  const el = document.createElement('section');
+  el.appendChild(html(eyebrowRow(q.stage, questionCounter())));
+  const title = document.createElement('h1');
+  title.className = 'q-title';
+  title.textContent = q.title;
+  el.appendChild(title);
+  if(q.hint){
+    const h = document.createElement('p');
+    h.className = 'q-hint';
+    if(q.optional) h.innerHTML = '<span class="opt-flag">Opcional · </span>';
+    h.appendChild(document.createTextNode(q.hint));
+    el.appendChild(h);
+  }
+
+  if(q.type === 'single') buildSingle(el, q);
+  else if(q.type === 'multi') buildMulti(el, q);
+  else if(q.type === 'text') buildText(el, q);
+  else if(q.type === 'chips') buildChips(el, q);
+
+  return el;
+}
+
+function html(str){
+  const t = document.createElement('template');
+  t.innerHTML = str.trim();
+  return t.content;
+}
+
+function makeActions(q, canContinue, skipLabel){
+  const bar = document.createElement('div');
+  bar.className = 'actions';
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-primary';
+  btn.id = 'continueBtn';
+  btn.innerHTML = 'Continuar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>';
+  if(!canContinue) btn.disabled = true;
+  btn.addEventListener('click', () => {
+    if(canContinueFn(q)) next();
+  });
+  bar.appendChild(btn);
+  if(q.optional || skipLabel){
+    const skip = document.createElement('button');
+    skip.className = 'btn btn-ghost';
+    skip.textContent = skipLabel || 'Pular';
+    skip.addEventListener('click', () => { delete answers[q.id]; next(); });
+    bar.appendChild(skip);
+  }
+  return bar;
+}
+
+function canContinueFn(q){
+  if(q.type === 'single' || q.type === 'multi' || q.type === 'chips') return isAnswered(q);
+  if(q.type === 'text'){
+    if(q.optional) return true; // vazio = pular
+    const v = String(answers[q.id] || '');
+    return v.trim().length > 0;
+  }
+  return false;
+}
+
+/* ---------- seleção única ---------- */
+function buildSingle(el, q){
+  const wrap = document.createElement('div');
+  wrap.className = 'opts';
+  const value = answers[q.id];
+  const selectedOutro = typeof value === 'string' && value.startsWith(OUTRO_PREFIX);
+
+  q.options.forEach((opt, i) => {
+    const label = optionLabel(opt);
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.dataset.key = 'ABCDEFGHIJ'[i];
+    const selected = isOutro(opt) ? selectedOutro : value === label;
+    if(selected) b.classList.add('selected');
+    b.innerHTML = '<span class="key"><span>' + b.dataset.key + '</span>' + CHECK_SVG + '</span><span>' + label + '</span>';
+    b.addEventListener('click', () => {
+      if(isOutro(opt)){
+        answers[q.id] = OUTRO_PREFIX + (selectedOutro ? value.slice(OUTRO_PREFIX.length) : '');
+        render(undefined, false);
+        const input = stageEl.querySelector('.outro-box input, .outro-box textarea');
+        if(input) input.focus();
+      }else{
+        answers[q.id] = label;
+        save();
+        render(undefined, false);
+        setTimeout(next, 240);
+      }
+    });
+    wrap.appendChild(b);
+  });
+
+  if(selectedOutro){
+    const box = document.createElement('div');
+    box.className = 'outro-box';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = (q.options.find(isOutro) || {}).placeholder || 'E qual seria?';
+    input.value = value.slice(OUTRO_PREFIX.length);
+    input.addEventListener('input', () => {
+      answers[q.id] = OUTRO_PREFIX + input.value;
+      save();
+    });
+    input.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        if(canContinueFn(q)) next();
+      }
+    });
+    box.appendChild(input);
+    wrap.appendChild(box);
+  }
+  el.appendChild(wrap);
+}
+
+/* ---------- seleção múltipla ---------- */
+function buildMulti(el, q){
+  const wrap = document.createElement('div');
+  wrap.className = 'opts';
+  const hasNote = !!q.note;
+  const raw = answers[q.id];
+  const selected = hasNote ? (raw && raw.selected || []) : (Array.isArray(raw) ? raw : []);
+  const noteVal = hasNote ? (raw && raw.note || '') : '';
+  const outroValRaw = (Array.isArray(raw) ? raw : []).find(v => typeof v === 'string' && v.startsWith(OUTRO_PREFIX));
+  const selectedOutro = !!outroValRaw;
+
+  const currentSelected = () => hasNote ? (answers[q.id] && answers[q.id].selected || []) : (Array.isArray(answers[q.id]) ? answers[q.id] : []);
+
+  q.options.forEach((opt, i) => {
+    const label = optionLabel(opt);
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.dataset.key = 'ABCDEFGHIJ'[i];
+    const isSel = isOutro(opt) ? selectedOutro : selected.includes(label);
+    if(isSel) b.classList.add('selected');
+    b.innerHTML = '<span class="key"><span>' + b.dataset.key + '</span>' + CHECK_SVG + '</span><span>' + label + '</span>';
+    b.addEventListener('click', () => {
+      let arr = currentSelected().slice();
+      if(isOutro(opt)){
+        if(selectedOutro){
+          arr = arr.filter(v => !(typeof v === 'string' && v.startsWith(OUTRO_PREFIX)));
+        }else{
+          arr.push(OUTRO_PREFIX);
+        }
+      }else{
+        if(arr.includes(label)) arr = arr.filter(v => v !== label);
+        else arr.push(label);
+      }
+      if(hasNote) answers[q.id] = {selected: arr, note: noteVal};
+      else answers[q.id] = arr;
+      save();
+      render(undefined, false);
+    });
+    wrap.appendChild(b);
+  });
+
+  if(selectedOutro){
+    const box = document.createElement('div');
+    box.className = 'outro-box';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = (q.options.find(isOutro) || {}).placeholder || 'E qual seria?';
+    input.value = (outroValRaw || OUTRO_PREFIX).slice(OUTRO_PREFIX.length);
+    input.addEventListener('input', () => {
+      let arr = currentSelected().slice();
+      arr = arr.filter(v => !(typeof v === 'string' && v.startsWith(OUTRO_PREFIX)));
+      if(input.value.trim()) arr.push(OUTRO_PREFIX + input.value);
+      else arr.push(OUTRO_PREFIX);
+      if(hasNote) answers[q.id] = {selected: arr, note: noteVal};
+      else answers[q.id] = arr;
+      save();
+    });
+    input.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        if(canContinueFn(q)) next();
+      }
+    });
+    box.appendChild(input);
+    wrap.appendChild(box);
+  }
+  el.appendChild(wrap);
+
+  if(hasNote && selected.length > 0){
+    const sub = document.createElement('div');
+    sub.className = 'sub-field';
+    const lab = document.createElement('label');
+    lab.innerHTML = q.noteLabel + ' <span class="opt-flag">(opcional)</span>';
+    sub.appendChild(lab);
+    const ta = document.createElement('textarea');
+    ta.rows = 3;
+    ta.placeholder = q.notePlaceholder || '';
+    ta.value = noteVal;
+    autoGrow(ta);
+    ta.addEventListener('input', () => {
+      answers[q.id] = {selected: currentSelected(), note: ta.value};
+      save();
+      autoGrow(ta);
+    });
+    sub.appendChild(ta);
+    el.appendChild(sub);
+  }
+
+  el.appendChild(makeActions(q, isAnswered(q)));
+}
+
+/* ---------- texto aberto ---------- */
+function buildText(el, q){
+  const ta = document.createElement('textarea');
+  ta.className = 'big-input';
+  ta.rows = 4;
+  ta.placeholder = q.placeholder || 'Escreva aqui…';
+  ta.value = typeof answers[q.id] === 'string' ? answers[q.id] : '';
+  autoGrow(ta);
+  ta.addEventListener('input', () => {
+    answers[q.id] = ta.value;
+    save();
+    autoGrow(ta);
+    refreshContinue(q);
+  });
+  ta.addEventListener('keydown', e => {
+    if(e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      if(canContinueFn(q)) next();
+    }
+  });
+  el.appendChild(ta);
+  el.appendChild(makeActions(q, q.optional ? true : isAnswered(q), q.optional ? 'Pular' : null));
+  setTimeout(() => ta.focus(), 60);
+}
+
+function refreshContinue(q){
+  const btn = stageEl.querySelector('#continueBtn');
+  if(btn) btn.disabled = !canContinueFn(q);
+}
+
+function autoGrow(ta){
+  ta.style.height = 'auto';
+  ta.style.height = Math.min(ta.scrollHeight + 2, 340) + 'px';
+}
+
+/* ---------- chips + texto ---------- */
+function buildChips(el, q){
+  const wrap = document.createElement('div');
+  wrap.className = 'chips';
+  const raw = answers[q.id] || {chips:[], text:''};
+
+  q.chips.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (raw.chips.includes(c) ? ' selected' : '');
+    b.textContent = c;
+    b.addEventListener('click', () => {
+      const st = answers[q.id] || {chips:[], text:''};
+      const set = st.chips.slice();
+      if(set.includes(c)) set.splice(set.indexOf(c), 1);
+      else set.push(c);
+      answers[q.id] = {chips: set, text: st.text};
+      save();
+      b.classList.toggle('selected');
+      refreshContinue(q);
+    });
+    wrap.appendChild(b);
+  });
+  el.appendChild(wrap);
+
+  const sub = document.createElement('div');
+  sub.className = 'sub-field';
+  const lab = document.createElement('label');
+  lab.innerHTML = q.textLabel + ' <span class="opt-flag">(opcional)</span>';
+  sub.appendChild(lab);
+  const ta = document.createElement('textarea');
+  ta.rows = 2;
+  ta.placeholder = q.textPlaceholder || '';
+  ta.value = raw.text || '';
+  autoGrow(ta);
+  ta.addEventListener('input', () => {
+    const cur = answers[q.id] || {chips: [], text: ''};
+    answers[q.id] = {chips: cur.chips, text: ta.value};
+    save();
+    autoGrow(ta);
+    refreshContinue(q);
+  });
+  sub.appendChild(ta);
+  el.appendChild(sub);
+
+  el.appendChild(makeActions(q, isAnswered(q)));
+}
+
+/* ============================================================
+   TELA FINAL
+   ============================================================ */
+function buildFinal(){
+  const el = document.createElement('section');
+  const visibleQs = QUESTIONS.filter(isVisible);
+  const answeredQs = visibleQs.filter(isAnswered);
+
+  el.innerHTML =
+    eyebrowRow('Check-up concluído', answeredQs.length + ' de ' + visibleQs.length + ' respostas') +
+    '<h1 class="q-title">Obrigado, ' + CONFIG.respondent.split(' ')[0] + '.</h1>' +
+    '<p class="q-hint">Suas respostas dão uma visão clara do momento do LIMAE. Vamos transformá-las em uma análise estratégica com oportunidades concretas de melhoria e crescimento. Revise abaixo — toque em qualquer resposta para ajustá-la.</p>';
+
+  if(answeredQs.length === 0){
+    el.innerHTML += '<p class="q-hint">Nenhuma resposta registrada ainda.</p>';
+    const bar = document.createElement('div');
+    bar.className = 'actions';
+    const b = document.createElement('button');
+    b.className = 'btn btn-primary';
+    b.textContent = 'Começar check-up';
+    b.addEventListener('click', () => goToIndex(1));
+    bar.appendChild(b);
+    el.appendChild(bar);
+    return el;
+  }
+
+  const recap = document.createElement('div');
+  recap.className = 'recap';
+  answeredQs.forEach(q => {
+    const row = document.createElement('div');
+    row.className = 'recap-row';
+    row.innerHTML = '<div class="rn">' + String(visibleQs.indexOf(q) + 1).padStart(2,'0') + '</div>';
+    const body = document.createElement('div');
+    body.className = 'rbody';
+    const lab = document.createElement('div');
+    lab.className = 'rl';
+    lab.textContent = q.short;
+    body.appendChild(lab);
+    const val = document.createElement('div');
+    val.className = 'rv';
+    const v = getAnswerValue(q);
+    if(q.type === 'single'){
+      val.textContent = v;
+    }else if(q.type === 'multi' && !q.note){
+      val.innerHTML = v.map(x => '<span class="tagchip">' + escapeHtml(x) + '</span>').join('');
+    }else if(q.type === 'chips' || (q.type === 'multi' && q.note)){
+      const chips = v.slice(0, v.length).map(x => '<span class="tagchip">' + escapeHtml(x) + '</span>').join('');
+      val.innerHTML = chips;
+    }else{
+      val.textContent = v;
+    }
+    body.appendChild(val);
+    row.appendChild(body);
+    row.addEventListener('click', () => {
+      goToIndex(flow.findIndex(s => s.id === q.id));
+    });
+    recap.appendChild(row);
+  });
+  el.appendChild(recap);
+  el.appendChild(html('<p class="recap-note">Suas respostas ficam salvas neste dispositivo enquanto você preenche.</p>'));
+
+  const actions = document.createElement('div');
+  actions.className = 'actions';
+  actions.style.marginTop = '26px';
+
+  if(hasWhats()){
+    const wa = document.createElement('button');
+    wa.className = 'btn btn-primary';
+    wa.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2zm5.83 14.03c-.25.7-1.45 1.33-2.02 1.42-.52.08-1.17.11-1.89-.12-.44-.14-1-.32-1.71-.63-3.02-1.3-4.99-4.34-5.14-4.54-.15-.2-1.23-1.63-1.23-3.11 0-1.49.78-2.22 1.06-2.52.28-.3.6-.38.81-.38.2 0 .4 0 .58.01.19.01.44-.07.68.52.25.6.85 2.07.93 2.22.08.15.13.33.03.53-.11.2-.16.32-.32.5-.16.18-.33.4-.48.54-.16.15-.32.32-.14.63.18.3.81 1.33 1.73 2.16 1.19 1.06 2.19 1.39 2.5 1.54.3.15.48.13.66-.08.18-.2.75-.88.95-1.18.2-.3.4-.25.68-.15.28.1 1.76.83 2.06.98.3.15.5.23.58.35.08.13.08.73-.17 1.43z"/></svg> Enviar resumo por WhatsApp';
+    wa.addEventListener('click', sendWhats);
+    actions.appendChild(wa);
+  }
+
+  const copy = document.createElement('button');
+  copy.className = 'btn btn-ghost';
+  copy.textContent = 'Copiar resumo';
+  copy.addEventListener('click', copySummary);
+  actions.appendChild(copy);
+
+  const dl = document.createElement('button');
+  dl.className = 'btn btn-ghost';
+  dl.textContent = 'Baixar resumo (.txt)';
+  dl.addEventListener('click', downloadSummary);
+  actions.appendChild(dl);
+
+  el.appendChild(actions);
+  el.appendChild(html(
+    '<p class="final-privacy">Ao enviar, o resumo das suas respostas será aberto no WhatsApp para a equipe da ' +
+    CONFIG.consultant + ', responsável pela análise estratégica do ' + CONFIG.org +
+    '. Suas respostas são confidenciais e usadas exclusivamente para preparar essa análise.</p>'
+  ));
+
+  const reset = document.createElement('button');
+  reset.className = 'reset-link';
+  reset.textContent = 'Limpar respostas e refazer o check-up';
+  reset.addEventListener('click', () => {
+    if(confirm('Isso apagará todas as respostas salvas neste dispositivo. Deseja continuar?')){
+      answers = {}; current = 0;
+      try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+      goToIndex(0);
+    }
+  });
+  el.appendChild(reset);
+  return el;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+}
+
+/* ============================================================
+   RESUMO / ENVIO
+   ============================================================ */
+function hasWhats(){
+  return CONFIG.whatsapp && /^\d{10,15}$/.test(CONFIG.whatsapp.replace(/\D/g,'')) &&
+         !CONFIG.whatsapp.includes('X');
+}
+
+function summaryDate(){
+  const d = new Date();
+  return d.toLocaleDateString('pt-BR') + ', ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+
+function buildSummaryText(){
+  const visibleQs = QUESTIONS.filter(isVisible);
+  const answeredQs = visibleQs.filter(isAnswered);
+  let out = '*CHECK-UP DO NICHOLAS — ' + CONFIG.org.toUpperCase() + '*\n';
+  out += CONFIG.respondent + ' · ' + CONFIG.role + '\n';
+  out += summaryDate() + '\n';
+  answeredQs.forEach((q, i) => {
+    const v = getAnswerValue(q);
+    let val;
+    if(q.type === 'single') val = String(v);
+    else if(q.type === 'text') val = String(v).trim();
+    else val = v.join('\n• ');
+    out += '\n*' + (i + 1) + '. ' + q.short + '*\n• ' + val + '\n';
+  });
+  out += '\n_Resumo gerado pelo Check-up do Nicholas · ' + CONFIG.org + ' × ' + CONFIG.consultant + '_';
+  return out;
+}
+
+function sendWhats(){
+  const text = buildSummaryText();
+  const url = 'https://wa.me/' + CONFIG.whatsapp.replace(/\D/g,'') + '?text=' + encodeURIComponent(text);
+  window.open(url, '_blank', 'noopener');
+  showToast('Abrindo o WhatsApp…');
+}
+
+function copySummary(){
+  const text = buildSummaryText();
+  const done = () => showToast('Resumo copiado. Cole no WhatsApp ou e-mail.');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  }else{
+    fallbackCopy(text, done);
+  }
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try{ document.execCommand('copy'); done(); }
+  catch(e){ showToast('Não foi possível copiar automaticamente.'); }
+  document.body.removeChild(ta);
+}
+
+function downloadSummary(){
+  const text = buildSummaryText();
+  const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'diagnostico-limae-' + new Date().toISOString().slice(0,10) + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  showToast('Resumo baixado.');
+}
+
+let toastTimer = null;
+function showToast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+}
+
+/* ============================================================
+   TECLADO
+   ============================================================ */
+document.addEventListener('keydown', e => {
+  const typing = e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT');
+  const screen = flow[current];
+
+  if(e.key === 'Enter' && typing){
+    // tratado dentro dos campos (enviar / nova linha)
+    return;
+  }
+
+  if(!screen) return;
+
+  if(e.key === 'Escape' && current > 0){ back(); return; }
+
+  if(typing) return; // setas/backspace livres enquanto digita
+
+  if((e.key === 'Backspace' || e.key === 'ArrowLeft') && current > 0){
+    e.preventDefault();
+    back();
+    return;
+  }
+  if(e.key === 'ArrowRight'){
+    e.preventDefault();
+    const q = isQuestion(screen) ? screen : null;
+    if(q && canContinueFn(q)) next();
+    return;
+  }
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    if(screen.id === '__welcome'){ next(); return; }
+    if(isQuestion(screen) && canContinueFn(screen)){ next(); return; }
+    return;
+  }
+
+  // atalhos por letra nas opções
+  if(isQuestion(screen) && (screen.type === 'single' || screen.type === 'multi')){
+    const idx = 'ABCDEFGHIJ'.indexOf(e.key.toUpperCase());
+    if(idx >= 0){
+      const targets = stageEl.querySelectorAll('.opt');
+      if(targets[idx]){
+        e.preventDefault();
+        targets[idx].click();
+      }
+    }
+  }
+});
+
+/* ============================================================
+   INICIALIZAÇÃO
+   ============================================================ */
+backBtn.addEventListener('click', back);
+
+(function init(){
+  const saved = restore();
+  if(saved){
+    answers = saved.answers || {};
+    current = Math.min(saved.index || 0, QUESTIONS.filter(isVisible).length + 1);
+  }
+  render(1);
+})();
+</script>
+</body>
+</html>
